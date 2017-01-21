@@ -4,12 +4,17 @@ import com.jdroidcoder.dto.BatchPointsDto;
 import com.jdroidcoder.dto.PointDto;
 import com.jdroidcoder.services.InfluxDBService;
 import org.influxdb.dto.BatchPoints;
+import org.influxdb.dto.Query;
+import org.influxdb.dto.QueryResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 
 import javax.validation.Valid;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Created by jdroidcoder on 20.01.17.
@@ -50,5 +55,10 @@ public class Controller {
     public ResponseEntity<String> write() {
         influxDBService.writeToDataBase(batchPoints);
         return ResponseEntity.ok("Batch Points was saved");
+    }
+
+    @GetMapping("/query/{dbName}")
+    public ResponseEntity<List<List<QueryResult.Result>>> query(@PathVariable String dbName) {
+        return ResponseEntity.ok(Arrays.asList(influxDBService.sendQuery(new Query("SELECT * FROM cpu", dbName)).getResults()));
     }
 }
